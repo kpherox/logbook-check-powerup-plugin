@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" stylesheets="@modernizable_ship.css" xmlns="http://javafx.com/javafx/8.0.162" xmlns:fx="http://javafx.com/fxml/1" fx:controller="logbook.plugin.checkpowerup.gui.ModernizableShipController">
+   <children>
+      <TableView fx:id="table" VBox.vgrow="ALWAYS">
+        <columns>
+          <TableColumn fx:id="row" prefWidth="50.0" text="行番号" />
+          <TableColumn fx:id="id" prefWidth="50.0" text="ID" />
+          <TableColumn fx:id="ship" prefWidth="260.0" text="艦娘" />
+          <TableColumn fx:id="lv" prefWidth="50.0" text="Lv" />
+          <TableColumn fx:id="karyoku" prefWidth="50.0" text="火力" />
+          <TableColumn fx:id="raisou" prefWidth="50.0" text="雷装" />
+          <TableColumn fx:id="taiku" prefWidth="50.0" text="対空" />
+          <TableColumn fx:id="soukou" prefWidth="50.0" text="装甲" />
+          <TableColumn fx:id="lucky" prefWidth="50.0" text="運" />
+          <TableColumn fx:id="taikyu" prefWidth="50.0" text="耐久" />
+          <TableColumn fx:id="taisen" prefWidth="50.0" text="対潜" />
+        </columns>
+        <contextMenu>
+           <ContextMenu>
+             <items>
+               <MenuItem mnemonicParsing="false" onAction="#copy" text="クリップボードにコピー" />
+               <MenuItem mnemonicParsing="false" onAction="#selectAll" text="すべてを選択" />
+               <SeparatorMenuItem mnemonicParsing="false" />
+               <MenuItem mnemonicParsing="false" onAction="#columnVisible" text="列の表示・非表示" />
+             </items>
+           </ContextMenu>
+        </contextMenu>
+      </TableView>
+   </children>
+</VBox>

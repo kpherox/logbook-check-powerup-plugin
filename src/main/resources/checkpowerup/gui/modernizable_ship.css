@@ -1,0 +1,14 @@
+.root {
+    -fx-font-family: "Meiryo UI";
+    -fx-font-weight: normal;
+}
+.table-cell {
+    -fx-alignment: center-left;
+}
+.increment-button ,.decrement-button {
+    -fx-padding: 0.5em;
+}
+.titled-pane > .title {
+    -fx-padding: 0.16665em 0.75em 0.16665em 0.75em; /* 2 9 2 9 */
+}
+
