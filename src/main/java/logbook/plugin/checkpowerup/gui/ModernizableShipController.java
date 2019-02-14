@@ -2,16 +2,22 @@ package logbook.plugin.checkpowerup.gui;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.controlsfx.control.ToggleSwitch;
 import org.controlsfx.control.textfield.TextFields;
 
+import lombok.Builder;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -27,6 +33,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.Duration;
+
 import logbook.bean.Ship;
 import logbook.bean.ShipCollection;
 import logbook.bean.ShipMst;
@@ -37,7 +44,6 @@ import logbook.internal.gui.Tools.Conrtols;
 import logbook.internal.gui.WindowController;
 import logbook.internal.LoggerHolder;
 import logbook.internal.Operator;
-import logbook.internal.ShipFilter.LevelFilter;
 import logbook.internal.Ships;
 
 /**
@@ -46,23 +52,23 @@ import logbook.internal.Ships;
  */
 public class ModernizableShipController extends WindowController {
 
-    /** ロック */
+    /** ロックフィルター */
     @FXML
     private ToggleSwitch lockedFilter;
 
-    /** ロック済み */
+    /** ロック */
     @FXML
     private CheckBox lockedValue;
 
-    /** レベル */
+    /** レベルフィルター */
     @FXML
     private ToggleSwitch levelFilter;
 
-    /** レベル基準 */
+    /** レベル */
     @FXML
     private TextField levelValue;
 
-    /** レベル範囲 */
+    /** レベル条件 */
     @FXML
     private ChoiceBox<Operator> levelType;
 
@@ -113,7 +119,9 @@ public class ModernizableShipController extends WindowController {
     @FXML
     private TableColumn<ModernizableShipItem, Integer> taisen;
 
-    private ObservableList<ModernizableShipItem> item = FXCollections.observableArrayList();
+    private ObservableList<ModernizableShipItem> items = FXCollections.observableArrayList();
+
+    private FilteredList<ModernizableShipItem> filteredItems = new FilteredList<>(this.items);
 
     private int modernizableShipHashCode;
 
@@ -140,6 +148,12 @@ public class ModernizableShipController extends WindowController {
         this.levelType.setItems(FXCollections.observableArrayList(Operator.values()));
         this.levelType.getSelectionModel().select(Operator.GE);
 
+        this.levelFilter.selectedProperty().addListener(this::filterAction);
+        this.levelValue.textProperty().addListener(this::filterAction);
+        this.levelType.getSelectionModel().selectedItemProperty().addListener(this::filterAction);
+        this.lockedFilter.selectedProperty().addListener(this::filterAction);
+        this.lockedValue.selectedProperty().addListener(this::filterAction);
+
         // カラムとオブジェクトのバインド
         this.row.setCellFactory(p -> new RowNumberCell());
         this.id.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -154,9 +168,9 @@ public class ModernizableShipController extends WindowController {
         this.taikyu.setCellValueFactory(new PropertyValueFactory<>("taikyu"));
         this.taisen.setCellValueFactory(new PropertyValueFactory<>("taisen"));
 
-        SortedList<ModernizableShipItem> sortedList = new SortedList<>(this.item);
-        this.table.setItems(sortedList);
-        sortedList.comparatorProperty().bind(this.table.comparatorProperty());
+        SortedList<ModernizableShipItem> sortedItems = new SortedList<>(this.filteredItems);
+        this.table.setItems(sortedItems);
+        sortedItems.comparatorProperty().bind(this.table.comparatorProperty());
         this.table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.table.setOnKeyPressed(Tables::defaultOnKeyPressedHandler);
 
@@ -181,16 +195,16 @@ public class ModernizableShipController extends WindowController {
                 .getShipMap()
                 .values()
                 .stream()
-                .filter(this::filter)
+                .filter(this::modernizableFilter)
                 .collect(Collectors.toList());
         if (this.modernizableShipHashCode == modernizable.hashCode()) {
             return;
         }
-        this.item.clear();
+        this.items.clear();
         modernizable.stream()
                 .sorted(Comparator.comparing(Ship::getLv, Comparator.reverseOrder()))
                 .map(ModernizableShipItem::toShipItem)
-                .forEach(this.item::add);
+                .forEach(this.items::add);
         this.modernizableShipHashCode = modernizable.hashCode();
     }
 
@@ -228,49 +242,95 @@ public class ModernizableShipController extends WindowController {
      * @param ship 艦娘
      * @return フィルタ結果
      */
-    private boolean filter(Ship ship) {
-        boolean visibleFilter = true;
-        if (this.lockedFilter.isSelected()) {
-            boolean isLocked = ship.getLocked();
-            visibleFilter &= this.lockedValue.isSelected() ? isLocked : !isLocked;
-        }
-        if (this.levelFilter.isSelected()) {
-            int level = Integer.parseInt(this.levelValue.getText().isEmpty()
-                                         ? "0"
-                                         : this.levelValue.getText());
-            LevelFilter filter = LevelFilter.builder()
-                                            .levelValue(level)
-                                            .levelType(this.levelType.getValue())
-                                            .build();
-            visibleFilter &= filter.test(ShipItem.toShipItem(ship));
-        }
-
-        boolean result = false;
+    private boolean modernizableFilter(Ship ship) {
         List<Integer> kyouka = ship.getKyouka();
+        Function<List<Integer>, Integer> getLimit = (mst) -> { return mst.get(1) - mst.get(0); };
+        boolean result = kyouka.get(0) < Ships.shipMst(ship).map(ShipMst::getHoug).map(getLimit).orElse(0)
+                      || kyouka.get(1) < Ships.shipMst(ship).map(ShipMst::getRaig).map(getLimit).orElse(0)
+                      || kyouka.get(2) < Ships.shipMst(ship).map(ShipMst::getTyku).map(getLimit).orElse(0)
+                      || kyouka.get(3) < Ships.shipMst(ship).map(ShipMst::getSouk).map(getLimit).orElse(0)
+                      || kyouka.get(4) < Ships.shipMst(ship).map(ShipMst::getLuck).map(getLimit).orElse(0)
+                      || ship.getMaxhp() < Ships.shipMst(ship).map(ShipMst::getTaik).map(mst -> mst.get(1)).orElse(0) && kyouka.get(5) < 2
+                      || ship.getTaisen().get(1) > 0 && kyouka.get(6) < 9;
 
-        if (this.karyoku.isVisible()) {
-            result |= kyouka.get(0) < Ships.shipMst(ship).map(ShipMst::getHoug).map(mst -> mst.get(1) - mst.get(0)).orElse(0);
+        return result;
+    }
+
+    /**
+     * フィルターを設定する
+     */
+    private void filterAction(ObservableValue<?> observable, Object oldValue, Object newValue) {
+        this.updateFilter();
+    }
+    private void updateFilter() {
+        Predicate<ModernizableShipItem> filter = this.createFilter();
+        this.filteredItems.setPredicate(filter);
+        //this.saveConfig();
+    }
+
+    /**
+     * 艦娘フィルターを作成する
+     * @return 艦娘フィルター
+     */
+    private Predicate<ModernizableShipItem> createFilter() {
+        Predicate<ModernizableShipItem> filter = null;
+
+        if (this.levelFilter.isSelected()) {
+            String level = this.levelValue.getText().isEmpty() ? "0" : this.levelValue.getText();
+
+            filter = LevelFilter.builder()
+                    .value(Integer.parseInt(level))
+                    .type(this.levelType.getValue())
+                    .build();
         }
-        if (this.raisou.isVisible()) {
-            result |= kyouka.get(1) < Ships.shipMst(ship).map(ShipMst::getRaig).map(mst -> mst.get(1) - mst.get(0)).orElse(0);
-        }
-        if (this.taiku.isVisible()) {
-            result |= kyouka.get(2) < Ships.shipMst(ship).map(ShipMst::getTyku).map(mst -> mst.get(1) - mst.get(0)).orElse(0);
-        }
-        if (this.soukou.isVisible()) {
-            result |= kyouka.get(3) < Ships.shipMst(ship).map(ShipMst::getSouk).map(mst -> mst.get(1) - mst.get(0)).orElse(0);
-        }
-        if (this.lucky.isVisible()) {
-            result |= kyouka.get(4) < Ships.shipMst(ship).map(ShipMst::getLuck).map(mst -> mst.get(1) - mst.get(0)).orElse(0);
-        }
-        if (this.taikyu.isVisible()) {
-            result |= ship.getMaxhp() < Ships.shipMst(ship).map(ShipMst::getTaik).map(mst -> mst.get(1)).orElse(0) && kyouka.get(5) < 2;
-        }
-        if (this.taisen.isVisible()) {
-            result |= ship.getTaisen().get(1) > 0 && kyouka.get(6) < 9;
+        if (this.lockedFilter.isSelected()) {
+            Predicate<ModernizableShipItem> newFilter = LockedFilter.builder()
+                    .locked(this.lockedValue.isSelected())
+                    .build();
+            filter = this.filterAnd(filter, newFilter);
         }
 
-        return result && visibleFilter;
+        return filter;
+    }
+
+    private Predicate<ModernizableShipItem> filterAnd(Predicate<ModernizableShipItem> base, Predicate<ModernizableShipItem> add) {
+        if (base != null) {
+            return base.and(add);
+        }
+        return add;
+    }
+
+    @Builder
+    public static class LevelFilter implements Predicate<ModernizableShipItem> {
+
+        /** レベル */
+        private int value;
+
+        /** レベル条件 */
+        private Operator type;
+
+        @Override
+        public boolean test(ModernizableShipItem ship) {
+            if (ship == null)
+                return false;
+            return this.type.compare(ship.getLv(), this.value);
+        }
+
+    }
+
+    @Builder
+    public static class LockedFilter implements Predicate<ModernizableShipItem> {
+
+        /** ロック */
+        private boolean locked;
+
+        @Override
+        public boolean test(ModernizableShipItem ship) {
+            if (ship == null)
+                return false;
+            return this.locked == ship.getLocked().booleanValue();
+        }
+
     }
 
     /**
