@@ -4,6 +4,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.controlsfx.control.ToggleSwitch;
+import org.controlsfx.control.textfield.TextFields;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -12,21 +15,29 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.util.converter.IntegerStringConverter;
 import javafx.util.Duration;
 import logbook.bean.Ship;
 import logbook.bean.ShipCollection;
 import logbook.bean.ShipMst;
+import logbook.internal.gui.ShipItem;
+import logbook.internal.gui.SuggestSupport;
 import logbook.internal.gui.Tools.Tables;
 import logbook.internal.gui.Tools.Conrtols;
 import logbook.internal.gui.WindowController;
 import logbook.internal.LoggerHolder;
+import logbook.internal.Operator;
+import logbook.internal.ShipFilter.LevelFilter;
 import logbook.internal.Ships;
 
 /**
@@ -34,6 +45,26 @@ import logbook.internal.Ships;
  *
  */
 public class ModernizableShipController extends WindowController {
+
+    /** ロック */
+    @FXML
+    private ToggleSwitch lockedFilter;
+
+    /** ロック済み */
+    @FXML
+    private CheckBox lockedValue;
+
+    /** レベル */
+    @FXML
+    private ToggleSwitch levelFilter;
+
+    /** レベル基準 */
+    @FXML
+    private TextField levelValue;
+
+    /** レベル範囲 */
+    @FXML
+    private ChoiceBox<Operator> levelType;
 
     @FXML
     private TableView<ModernizableShipItem> table;
@@ -93,6 +124,21 @@ public class ModernizableShipController extends WindowController {
         Tables.setVisible(this.table, this.getClass().toString() + "#" + "table");
         Tables.setWidth(this.table, this.getClass().toString() + "#" + "table");
         Tables.setSortOrder(this.table, this.getClass().toString() + "#" + "table");
+
+        // フィルターのバインド
+        this.lockedFilter.selectedProperty().addListener((ob, ov, nv) -> {
+            this.lockedValue.setDisable(!nv);
+        });
+        this.levelFilter.selectedProperty().addListener((ob, ov, nv) -> {
+            this.levelValue.setDisable(!nv);
+            this.levelType.setDisable(!nv);
+        });
+        this.levelValue.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+        TextFields.bindAutoCompletion(this.levelValue,
+                                      new SuggestSupport("100", "99", "90", "80", "75", "70", "65", "60", "55", "50", "40", "30", "20"));
+        this.levelValue.setText("98");
+        this.levelType.setItems(FXCollections.observableArrayList(Operator.values()));
+        this.levelType.getSelectionModel().select(Operator.GE);
 
         // カラムとオブジェクトのバインド
         this.row.setCellFactory(p -> new RowNumberCell());
@@ -183,8 +229,24 @@ public class ModernizableShipController extends WindowController {
      * @return フィルタ結果
      */
     private boolean filter(Ship ship) {
-        List<Integer> kyouka = ship.getKyouka();
+        boolean visibleFilter = true;
+        if (this.lockedFilter.isSelected()) {
+            boolean isLocked = ship.getLocked();
+            visibleFilter &= this.lockedValue.isSelected() ? isLocked : !isLocked;
+        }
+        if (this.levelFilter.isSelected()) {
+            int level = Integer.parseInt(this.levelValue.getText().isEmpty()
+                                         ? "0"
+                                         : this.levelValue.getText());
+            LevelFilter filter = LevelFilter.builder()
+                                            .levelValue(level)
+                                            .levelType(this.levelType.getValue())
+                                            .build();
+            visibleFilter &= filter.test(ShipItem.toShipItem(ship));
+        }
+
         boolean result = false;
+        List<Integer> kyouka = ship.getKyouka();
 
         if (this.karyoku.isVisible()) {
             result |= kyouka.get(0) < Ships.shipMst(ship).map(ShipMst::getHoug).map(mst -> mst.get(1) - mst.get(0)).orElse(0);
@@ -207,7 +269,8 @@ public class ModernizableShipController extends WindowController {
         if (this.taisen.isVisible()) {
             result |= ship.getTaisen().get(1) > 0 && kyouka.get(6) < 9;
         }
-        return result;
+
+        return result && visibleFilter;
     }
 
     /**
