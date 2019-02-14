@@ -23,6 +23,9 @@ public class ModernizableShipItem {
     /** Lv */
     private Integer lv;
 
+    /** ロック */
+    private Boolean locked;
+
     /** 近代化改修 */
     private List<Integer> kyouka;
 
@@ -106,6 +109,18 @@ public class ModernizableShipItem {
     }
     public void setLv(Integer lv) {
         this.lv = lv;
+    }
+
+    /**
+     * ロックのgetter/setter
+     * @param locked ロック
+     * @return ロック
+     */
+    public Boolean getLocked() {
+        return this.locked;
+    }
+    public void setLocked(Boolean locked) {
+        this.locked = locked;
     }
 
     /**
@@ -283,6 +298,7 @@ public class ModernizableShipItem {
         item.setId(ship.getId());
         item.setShip(ship);
         item.setLv(ship.getLv());
+        item.setLocked(ship.getLocked());
 
         item.setKyouka(ship.getKyouka());
 
