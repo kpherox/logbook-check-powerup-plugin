@@ -109,7 +109,7 @@ public class ModernizableShipController extends WindowController {
         this.taisen.setCellValueFactory(new PropertyValueFactory<>("taisen"));
 
         SortedList<ModernizableShipItem> sortedList = new SortedList<>(this.item);
-        this.table.setItems(this.item);
+        this.table.setItems(sortedList);
         sortedList.comparatorProperty().bind(this.table.comparatorProperty());
         this.table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.table.setOnKeyPressed(Tables::defaultOnKeyPressedHandler);
