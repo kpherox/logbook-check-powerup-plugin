@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import org.controlsfx.control.ToggleSwitch;
 import org.controlsfx.control.textfield.TextFields;
 
-import lombok.Builder;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.value.ObservableValue;
@@ -45,6 +43,8 @@ import logbook.internal.gui.WindowController;
 import logbook.internal.LoggerHolder;
 import logbook.internal.Operator;
 import logbook.internal.Ships;
+
+import logbook.plugin.checkpowerup.ModernizableShipFilter;
 
 /**
  * 近代化改修可能な艦娘のコントローラー
@@ -278,13 +278,13 @@ public class ModernizableShipController extends WindowController {
         if (this.levelFilter.isSelected()) {
             String level = this.levelValue.getText().isEmpty() ? "0" : this.levelValue.getText();
 
-            filter = LevelFilter.builder()
+            filter = ModernizableShipFilter.LevelFilter.builder()
                     .value(Integer.parseInt(level))
                     .type(this.levelType.getValue())
                     .build();
         }
         if (this.lockedFilter.isSelected()) {
-            Predicate<ModernizableShipItem> newFilter = LockedFilter.builder()
+            ModernizableShipFilter newFilter = ModernizableShipFilter.LockedFilter.builder()
                     .locked(this.lockedValue.isSelected())
                     .build();
             filter = this.filterAnd(filter, newFilter);
@@ -293,44 +293,11 @@ public class ModernizableShipController extends WindowController {
         return filter;
     }
 
-    private Predicate<ModernizableShipItem> filterAnd(Predicate<ModernizableShipItem> base, Predicate<ModernizableShipItem> add) {
+    private <T extends Predicate<ModernizableShipItem>> Predicate<ModernizableShipItem> filterAnd(T base, T add) {
         if (base != null) {
             return base.and(add);
         }
         return add;
-    }
-
-    @Builder
-    public static class LevelFilter implements Predicate<ModernizableShipItem> {
-
-        /** レベル */
-        private int value;
-
-        /** レベル条件 */
-        private Operator type;
-
-        @Override
-        public boolean test(ModernizableShipItem ship) {
-            if (ship == null)
-                return false;
-            return this.type.compare(ship.getLv(), this.value);
-        }
-
-    }
-
-    @Builder
-    public static class LockedFilter implements Predicate<ModernizableShipItem> {
-
-        /** ロック */
-        private boolean locked;
-
-        @Override
-        public boolean test(ModernizableShipItem ship) {
-            if (ship == null)
-                return false;
-            return this.locked == ship.getLocked().booleanValue();
-        }
-
     }
 
     /**
