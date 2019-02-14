@@ -4,6 +4,9 @@ import java.util.function.Function;
 import java.util.List;
 import java.util.Optional;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import logbook.bean.Ship;
 import logbook.bean.ShipMst;
 import logbook.internal.Ships;
@@ -15,57 +18,75 @@ import logbook.internal.Ships;
 public class ModernizableShipItem {
 
     /** ID */
+    @Getter @Setter
     private Integer id;
 
     /** 艦娘 */
+    @Getter @Setter
     private Ship ship;
 
     /** Lv */
+    @Getter @Setter
     private Integer lv;
 
     /** ロック */
+    @Getter @Setter
     private Boolean locked;
 
     /** 近代化改修 */
+    @Setter
     private List<Integer> kyouka;
 
     /** 火力 */
+    @Setter
     private Integer karyoku;
 
     /** 火力上限 */
+    @Setter
     private Integer karyokuLimit;
 
     /** 雷装 */
+    @Setter
     private Integer raisou;
 
     /** 雷装上限 */
+    @Setter
     private Integer raisouLimit;
 
     /** 対空 */
+    @Setter
     private Integer taiku;
 
     /** 対空上限 */
+    @Setter
     private Integer taikuLimit;
 
     /** 装甲 */
+    @Setter
     private Integer soukou;
 
     /** 装甲上限 */
+    @Setter
     private Integer soukouLimit;
 
     /** 運 */
+    @Setter
     private Integer lucky;
 
     /** 運上限 */
+    @Setter
     private Integer luckyLimit;
 
     /** 耐久 */
+    @Setter
     private Integer taikyu;
 
     /** 耐久上限 */
+    @Setter
     private Integer taikyuMax;
 
     /** 対潜 */
+    @Setter
     private Integer taisen;
 
     /** 素の対潜の有無 */
@@ -76,191 +97,66 @@ public class ModernizableShipItem {
     private static int VAS = 9;
 
     /**
-     * IDのgetter/setter
-     * @param id ID
-     * @return ID
-     */
-    public Integer getId() {
-        return this.id;
-    }
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    /**
-     * 艦娘のgetter/setter
-     * @param ship 艦娘
-     * @return 艦娘
-     */
-    public Ship getShip() {
-        return this.ship;
-    }
-    public void setShip(Ship ship) {
-        this.ship = ship;
-    }
-
-    /**
-     * Lvのgetter/setter
-     * @param lv Lv
-     * @return Lv
-     */
-    public Integer getLv() {
-        return this.lv;
-    }
-    public void setLv(Integer lv) {
-        this.lv = lv;
-    }
-
-    /**
-     * ロックのgetter/setter
-     * @param locked ロック
-     * @return ロック
-     */
-    public Boolean getLocked() {
-        return this.locked;
-    }
-    public void setLocked(Boolean locked) {
-        this.locked = locked;
-    }
-
-    /**
-     * 近代化改修を設定します。
-     * @param kyouka 近代化改修
-     */
-    public void setKyouka(List<Integer> kyouka) {
-        this.kyouka = kyouka;
-    }
-
-    /**
-     * 火力のgetter/setter
+     * 火力を取得します。
      * @param karyoku 火力
      * @return 火力
      */
     public Integer getKaryoku() {
         return this.karyokuLimit - this.kyouka.get(0);
     }
-    public void setKaryoku(Integer karyoku) {
-        this.karyoku = karyoku;
-    }
 
     /**
-     * 火力上限を設定します。
-     * @param karyokuLimit 火力
-     */
-    public void setKaryokuLimit(Integer karyokuLimit) {
-        this.karyokuLimit = karyokuLimit;
-    }
-
-    /**
-     * 雷装のgetter/setter
+     * 雷装を取得します。
      * @param raisou 雷装
      * @return 雷装
      */
     public Integer getRaisou() {
         return this.raisouLimit - this.kyouka.get(1);
     }
-    public void setRaisou(Integer raisou) {
-        this.raisou = raisou;
-    }
 
     /**
-     * 雷装上限を設定します。
-     * @param raisouLimit 雷装
-     */
-    public void setRaisouLimit(Integer raisouLimit) {
-        this.raisouLimit = raisouLimit;
-    }
-
-    /**
-     * 対空のgetter/setter
+     * 対空を取得します。
      * @param taiku 対空
      * @return 対空
      */
     public Integer getTaiku() {
         return this.taikuLimit - this.kyouka.get(2);
     }
-    public void setTaiku(Integer taiku) {
-        this.taiku = taiku;
-    }
 
     /**
-     * 対空上限を設定します。
-     * @param taikuLimit 対空
-     */
-    public void setTaikuLimit(Integer taikuLimit) {
-        this.taikuLimit = taikuLimit;
-    }
-
-    /**
-     * 装甲のgetter/setter
+     * 装甲を取得します。
      * @param soukou 装甲
      * @return 装甲
      */
     public Integer getSoukou() {
         return this.soukouLimit - this.kyouka.get(3);
     }
-    public void setSoukou(Integer soukou) {
-        this.soukou = soukou;
-    }
 
     /**
-     * 装甲上限を設定します。
-     * @param soukouLimit 装甲
-     */
-    public void setSoukouLimit(Integer soukouLimit) {
-        this.soukouLimit = soukouLimit;
-    }
-
-    /**
-     * 運のgetter/setter
+     * 運を取得します。
      * @param lucky 運
      * @return 運
      */
     public Integer getLucky() {
         return this.luckyLimit - this.kyouka.get(4);
     }
-    public void setLucky(Integer lucky) {
-        this.lucky = lucky;
-    }
 
     /**
-     * 運上限を設定します。
-     * @param luckyLimit 運
-     */
-    public void setLuckyLimit(Integer luckyLimit) {
-        this.luckyLimit = luckyLimit;
-    }
-
-    /**
-     * 耐久のgetter/setter
+     * 耐久を取得します。
      * @param taikyu 耐久
      * @return 耐久
      */
     public Integer getTaikyu() {
         return this.taikyuLimit() - this.kyouka.get(5);
     }
-    public void setTaikyu(Integer taikyu) {
-        this.taikyu = taikyu;
-    }
 
     /**
-     * 耐久上限を設定します。
-     * @param taikyuMax 耐久上限
-     */
-    public void setTaikyuMax(Integer taikyuMax) {
-        this.taikyuMax = taikyuMax;
-    }
-
-    /**
-     * 対潜のgetter/setter
+     * 対潜を取得します。
      * @param taisen 対潜
      * @return 対潜
      */
     public Integer getTaisen() {
         return this.taisenLimit() - this.kyouka.get(6);
-    }
-    public void setTaisen(Integer taisen) {
-        this.taisen = taisen;
     }
 
     /**
