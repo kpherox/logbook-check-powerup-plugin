@@ -10,6 +10,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import org.controlsfx.control.ToggleSwitch?>
 
@@ -19,23 +20,42 @@
         <children>
           <TitledPane fx:id="filter" animated="false" expanded="false" text="フィルター">
             <content>
-              <FlowPane>
+              <VBox>
                 <children>
-                  <VBox fillWidth="false">
+                  <FlowPane>
                     <children>
-                      <ToggleSwitch fx:id="lockedFilter" prefWidth="0.0" text="ロック" />
-                      <CheckBox fx:id="lockedValue" disable="true" mnemonicParsing="false" selected="true" text="ロック済み" />
+                      <CheckBox fx:id="karyokuFilter" mnemonicParsing="false" selected="true" text="火力" />
+                      <CheckBox fx:id="raisouFilter" mnemonicParsing="false" selected="true" text="雷装" />
+                      <CheckBox fx:id="taikuFilter" mnemonicParsing="false" selected="true" text="対空" />
+                      <CheckBox fx:id="soukouFilter" mnemonicParsing="false" selected="true" text="装甲" />
+                      <CheckBox fx:id="luckyFilter" mnemonicParsing="false" selected="true" text="運" />
+                      <CheckBox fx:id="taikyuFilter" mnemonicParsing="false" selected="true" text="耐久" />
+                      <CheckBox fx:id="taisenFilter" mnemonicParsing="false" selected="true" text="対潜" />
                     </children>
-                  </VBox>
-                  <VBox fillWidth="false">
+                  </FlowPane>
+                  <FlowPane>
                     <children>
-                      <ToggleSwitch fx:id="levelFilter" prefWidth="0.0" text="レベル" />
-                      <TextField fx:id="levelValue" disable="true" prefWidth="70.0" text="98" />
-                      <ChoiceBox fx:id="levelType" disable="true" />
+                      <VBox fillWidth="false">
+                        <children>
+                          <ToggleSwitch fx:id="lockedFilter" prefWidth="0.0" text="ロック" />
+                          <CheckBox fx:id="lockedValue" disable="true" mnemonicParsing="false" selected="true" text="ロック済み" />
+                        </children>
+                      </VBox>
+                      <VBox fillWidth="false">
+                        <children>
+                          <ToggleSwitch fx:id="levelFilter" prefWidth="0.0" text="レベル" />
+                          <HBox>
+                            <children>
+                              <TextField fx:id="levelValue" disable="true" prefWidth="70.0" text="98" />
+                              <ChoiceBox fx:id="levelType" disable="true" />
+                            </children>
+                          </HBox>
+                        </children>
+                      </VBox>
                     </children>
-                  </VBox>
+                  </FlowPane>
                 </children>
-              </FlowPane>
+              </VBox>
             </content>
           </TitledPane>
         </children>

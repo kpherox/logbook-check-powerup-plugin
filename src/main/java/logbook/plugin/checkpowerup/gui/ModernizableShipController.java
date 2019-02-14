@@ -52,6 +52,34 @@ import logbook.plugin.checkpowerup.ModernizableShipFilter;
  */
 public class ModernizableShipController extends WindowController {
 
+    /** 火力フィルター */
+    @FXML
+    private CheckBox karyokuFilter;
+
+    /** 雷装フィルター */
+    @FXML
+    private CheckBox raisouFilter;
+
+    /** 対空フィルター */
+    @FXML
+    private CheckBox taikuFilter;
+
+    /** 装甲フィルター */
+    @FXML
+    private CheckBox soukouFilter;
+
+    /** 運フィルター */
+    @FXML
+    private CheckBox luckyFilter;
+
+    /** 耐久フィルター */
+    @FXML
+    private CheckBox taikyuFilter;
+
+    /** 対潜フィルター */
+    @FXML
+    private CheckBox taisenFilter;
+
     /** ロックフィルター */
     @FXML
     private ToggleSwitch lockedFilter;
@@ -148,6 +176,13 @@ public class ModernizableShipController extends WindowController {
         this.levelType.setItems(FXCollections.observableArrayList(Operator.values()));
         this.levelType.getSelectionModel().select(Operator.GE);
 
+        this.karyokuFilter.selectedProperty().addListener(this::filterAction);
+        this.raisouFilter.selectedProperty().addListener(this::filterAction);
+        this.taikuFilter.selectedProperty().addListener(this::filterAction);
+        this.soukouFilter.selectedProperty().addListener(this::filterAction);
+        this.luckyFilter.selectedProperty().addListener(this::filterAction);
+        this.taikyuFilter.selectedProperty().addListener(this::filterAction);
+        this.taisenFilter.selectedProperty().addListener(this::filterAction);
         this.levelFilter.selectedProperty().addListener(this::filterAction);
         this.levelValue.textProperty().addListener(this::filterAction);
         this.levelType.getSelectionModel().selectedItemProperty().addListener(this::filterAction);
@@ -273,31 +308,31 @@ public class ModernizableShipController extends WindowController {
      * @return 艦娘フィルター
      */
     private Predicate<ModernizableShipItem> createFilter() {
-        Predicate<ModernizableShipItem> filter = null;
+        Predicate<ModernizableShipItem> filter = ModernizableShipFilter.ModernizedFilter.builder()
+                .karyoku(this.karyokuFilter.isSelected())
+                .raisou(this.raisouFilter.isSelected())
+                .taiku(this.taikuFilter.isSelected())
+                .soukou(this.soukouFilter.isSelected())
+                .lucky(this.luckyFilter.isSelected())
+                .taikyu(this.taikyuFilter.isSelected())
+                .taisen(this.taisenFilter.isSelected())
+                .build();
 
         if (this.levelFilter.isSelected()) {
             String level = this.levelValue.getText().isEmpty() ? "0" : this.levelValue.getText();
 
-            filter = ModernizableShipFilter.LevelFilter.builder()
-                    .value(Integer.parseInt(level))
-                    .type(this.levelType.getValue())
-                    .build();
+            filter = filter.and(ModernizableShipFilter.LevelFilter.builder()
+                                    .value(Integer.parseInt(level))
+                                    .type(this.levelType.getValue())
+                                    .build());
         }
         if (this.lockedFilter.isSelected()) {
-            ModernizableShipFilter newFilter = ModernizableShipFilter.LockedFilter.builder()
-                    .locked(this.lockedValue.isSelected())
-                    .build();
-            filter = this.filterAnd(filter, newFilter);
+            filter = filter.and(ModernizableShipFilter.LockedFilter.builder()
+                                    .locked(this.lockedValue.isSelected())
+                                    .build());
         }
 
         return filter;
-    }
-
-    private <T extends Predicate<ModernizableShipItem>> Predicate<ModernizableShipItem> filterAnd(T base, T add) {
-        if (base != null) {
-            return base.and(add);
-        }
-        return add;
     }
 
     /**
