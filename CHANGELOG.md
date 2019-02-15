@@ -1,5 +1,10 @@
 # Changelog
 
+## version 1.1.1
+### Fixed
+- フィルターの設定が正しくレストアされない不具合を修正
+
+
 ## version 1.1.0
 ### Added
 - フィルターを追加
