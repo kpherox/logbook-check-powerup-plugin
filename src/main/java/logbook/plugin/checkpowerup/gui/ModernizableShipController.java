@@ -162,11 +162,17 @@ public class ModernizableShipController extends WindowController {
 
     private Timeline timeline;
 
+    /** フィルターの更新停止 */
+    private boolean disableFilterUpdate;
+
     @FXML
     void initialize() {
         Tables.setVisible(this.table, this.getClass().toString() + "#" + "table");
         Tables.setWidth(this.table, this.getClass().toString() + "#" + "table");
         Tables.setSortOrder(this.table, this.getClass().toString() + "#" + "table");
+
+        // フィルターの更新停止
+        this.disableFilterUpdate = true;
 
         // フィルター
         this.filter.expandedProperty().addListener((ob, ov, nv) -> {
@@ -227,6 +233,8 @@ public class ModernizableShipController extends WindowController {
 
         this.update(null);
 
+        // フィルターの更新再開
+        this.disableFilterUpdate = false;
         // 設定を復元する
         this.restoreConfig();
     }
@@ -310,9 +318,11 @@ public class ModernizableShipController extends WindowController {
         this.updateFilter();
     }
     private void updateFilter() {
-        Predicate<ModernizableShipItem> filter = this.createFilter();
-        this.filteredItems.setPredicate(filter);
-        this.saveConfig();
+        if (!this.disableFilterUpdate) {
+            Predicate<ModernizableShipItem> filter = this.createFilter();
+            this.filteredItems.setPredicate(filter);
+            this.saveConfig();
+        }
     }
 
     /**
@@ -363,6 +373,9 @@ public class ModernizableShipController extends WindowController {
     private void restoreConfig() {
         ModernizableTableConfig config = ModernizableTableConfig.get();
 
+        // フィルターの更新停止
+        this.disableFilterUpdate = true;
+
         // 近代化改修項目
         List<String> modernizedValue = config.getModernizedValue();
         if (Objects.nonNull(modernizedValue)) {
@@ -382,6 +395,9 @@ public class ModernizableShipController extends WindowController {
         this.lockedFilter.setSelected(config.isLockedEnabled());
         this.lockedValue.setSelected(config.isLockedValue());
 
+        // フィルターの更新再開
+        this.disableFilterUpdate = false;
+
         // フィルター適用
         this.updateFilter();
     }
@@ -391,6 +407,10 @@ public class ModernizableShipController extends WindowController {
      */
     private void saveConfig() {
         ModernizableTableConfig config = ModernizableTableConfig.get();
+
+        if (this.disableFilterUpdate) {
+            return;
+        }
 
         // 近代化改修項目
         config.setModernizedValue(this.modernizedCheckBox().stream()
