@@ -3,6 +3,7 @@ package logbook.plugin.checkpowerup.gui;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.util.converter.IntegerStringConverter;
@@ -45,12 +47,17 @@ import logbook.internal.Operator;
 import logbook.internal.Ships;
 
 import logbook.plugin.checkpowerup.ModernizableShipFilter;
+import logbook.plugin.checkpowerup.ModernizableTableConfig;
 
 /**
  * 近代化改修可能な艦娘のコントローラー
  *
  */
 public class ModernizableShipController extends WindowController {
+
+    /** フィルター */
+    @FXML
+    private TitledPane filter;
 
     /** 火力フィルター */
     @FXML
@@ -161,6 +168,11 @@ public class ModernizableShipController extends WindowController {
         Tables.setWidth(this.table, this.getClass().toString() + "#" + "table");
         Tables.setSortOrder(this.table, this.getClass().toString() + "#" + "table");
 
+        // フィルター
+        this.filter.expandedProperty().addListener((ob, ov, nv) -> {
+            this.saveConfig();
+        });
+
         // フィルター 初期値
         this.levelType.setItems(FXCollections.observableArrayList(Operator.values()));
         this.levelType.getSelectionModel().select(Operator.GE);
@@ -214,6 +226,9 @@ public class ModernizableShipController extends WindowController {
         this.timeline.play();
 
         this.update(null);
+
+        // 設定を復元する
+        this.restoreConfig();
     }
 
     /**
@@ -297,7 +312,7 @@ public class ModernizableShipController extends WindowController {
     private void updateFilter() {
         Predicate<ModernizableShipItem> filter = this.createFilter();
         this.filteredItems.setPredicate(filter);
-        //this.saveConfig();
+        this.saveConfig();
     }
 
     /**
@@ -340,6 +355,57 @@ public class ModernizableShipController extends WindowController {
                 this.luckyValue,
                 this.taikyuValue,
                 this.taisenValue);
+    }
+
+    /**
+     * 設定を復元する
+     */
+    private void restoreConfig() {
+        ModernizableTableConfig config = ModernizableTableConfig.get();
+
+        // 近代化改修項目
+        List<String> modernizedValue = config.getModernizedValue();
+        if (Objects.nonNull(modernizedValue)) {
+            this.modernizedCheckBox().forEach(c -> c.setSelected(modernizedValue.contains(c.getText())));
+        }
+
+        // レベル
+        this.levelFilter.setSelected(config.isLevelEnabled());
+        String levelValue = config.getLevelValue();
+        Operator levelType = config.getLevelType();
+        if (Objects.nonNull(levelValue) && Objects.nonNull(levelType)) {
+            this.levelValue.setText(levelValue);
+            this.levelType.setValue(levelType);
+        }
+
+        // ロック
+        this.lockedFilter.setSelected(config.isLockedEnabled());
+        this.lockedValue.setSelected(config.isLockedValue());
+
+        // フィルター適用
+        this.updateFilter();
+    }
+
+    /**
+     * 設定を保存する
+     */
+    private void saveConfig() {
+        ModernizableTableConfig config = ModernizableTableConfig.get();
+
+        // 近代化改修項目
+        config.setModernizedValue(this.modernizedCheckBox().stream()
+                .filter(CheckBox::isSelected)
+                .map(CheckBox::getText)
+                .collect(Collectors.toList()));
+
+        // レベル
+        config.setLevelEnabled(this.levelFilter.isSelected());
+        config.setLevelValue(this.levelValue.getText());
+        config.setLevelType(this.levelType.getValue());
+
+        // ロック
+        config.setLockedEnabled(this.lockedFilter.isSelected());
+        config.setLockedValue(this.lockedValue.isSelected());
     }
 
     /**
