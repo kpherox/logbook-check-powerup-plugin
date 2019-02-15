@@ -212,7 +212,7 @@ public class ModernizableShipController extends WindowController {
         this.timeline = new Timeline();
         this.timeline.setCycleCount(Timeline.INDEFINITE);
         this.timeline.getKeyFrames().add(new KeyFrame(
-                Duration.seconds(1),
+                Duration.seconds(5),
                 this::update));
         this.timeline.play();
 

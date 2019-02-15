@@ -20,17 +20,21 @@
         <children>
           <TitledPane fx:id="filter" animated="false" expanded="false" text="フィルター">
             <content>
-              <VBox>
+              <VBox spacing="3">
                 <children>
                   <FlowPane>
                     <children>
-                      <CheckBox fx:id="karyokuFilter" mnemonicParsing="false" selected="true" text="火力" />
-                      <CheckBox fx:id="raisouFilter" mnemonicParsing="false" selected="true" text="雷装" />
-                      <CheckBox fx:id="taikuFilter" mnemonicParsing="false" selected="true" text="対空" />
-                      <CheckBox fx:id="soukouFilter" mnemonicParsing="false" selected="true" text="装甲" />
-                      <CheckBox fx:id="luckyFilter" mnemonicParsing="false" selected="true" text="運" />
-                      <CheckBox fx:id="taikyuFilter" mnemonicParsing="false" selected="true" text="耐久" />
-                      <CheckBox fx:id="taisenFilter" mnemonicParsing="false" selected="true" text="対潜" />
+                      <HBox spacing="5">
+                        <children>
+                          <CheckBox fx:id="karyokuFilter" mnemonicParsing="false" selected="true" text="火力" />
+                          <CheckBox fx:id="raisouFilter" mnemonicParsing="false" selected="true" text="雷装" />
+                          <CheckBox fx:id="taikuFilter" mnemonicParsing="false" selected="true" text="対空" />
+                          <CheckBox fx:id="soukouFilter" mnemonicParsing="false" selected="true" text="装甲" />
+                          <CheckBox fx:id="luckyFilter" mnemonicParsing="false" selected="true" text="運" />
+                          <CheckBox fx:id="taikyuFilter" mnemonicParsing="false" selected="true" text="耐久" />
+                          <CheckBox fx:id="taisenFilter" mnemonicParsing="false" selected="true" text="対潜" />
+                        </children>
+                      </HBox>
                     </children>
                   </FlowPane>
                   <FlowPane>
