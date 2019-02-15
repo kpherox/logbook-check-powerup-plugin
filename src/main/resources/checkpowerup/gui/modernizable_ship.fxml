@@ -1,14 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.ToggleSwitch?>
 
 <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" stylesheets="@modernizable_ship.css" xmlns="http://javafx.com/javafx/8.0.162" xmlns:fx="http://javafx.com/fxml/1" fx:controller="logbook.plugin.checkpowerup.gui.ModernizableShipController">
    <children>
+      <VBox>
+        <children>
+          <TitledPane fx:id="filter" animated="false" expanded="false" text="フィルター">
+            <content>
+              <VBox spacing="3">
+                <children>
+                  <FlowPane>
+                    <children>
+                      <HBox spacing="5">
+                        <children>
+                          <CheckBox fx:id="karyokuValue" mnemonicParsing="false" selected="true" text="火力" />
+                          <CheckBox fx:id="raisouValue" mnemonicParsing="false" selected="true" text="雷装" />
+                          <CheckBox fx:id="taikuValue" mnemonicParsing="false" selected="true" text="対空" />
+                          <CheckBox fx:id="soukouValue" mnemonicParsing="false" selected="true" text="装甲" />
+                          <CheckBox fx:id="luckyValue" mnemonicParsing="false" selected="true" text="運" />
+                          <CheckBox fx:id="taikyuValue" mnemonicParsing="false" selected="true" text="耐久" />
+                          <CheckBox fx:id="taisenValue" mnemonicParsing="false" selected="true" text="対潜" />
+                        </children>
+                      </HBox>
+                    </children>
+                  </FlowPane>
+                  <FlowPane>
+                    <children>
+                      <VBox fillWidth="false">
+                        <children>
+                          <ToggleSwitch fx:id="lockedFilter" prefWidth="0.0" text="ロック" />
+                          <CheckBox fx:id="lockedValue" disable="true" mnemonicParsing="false" selected="true" text="ロック済み" />
+                        </children>
+                      </VBox>
+                      <VBox fillWidth="false">
+                        <children>
+                          <ToggleSwitch fx:id="levelFilter" prefWidth="0.0" text="レベル" />
+                          <HBox>
+                            <children>
+                              <TextField fx:id="levelValue" disable="true" prefWidth="70.0" text="98" />
+                              <ChoiceBox fx:id="levelType" disable="true" />
+                            </children>
+                          </HBox>
+                        </children>
+                      </VBox>
+                    </children>
+                  </FlowPane>
+                </children>
+              </VBox>
+            </content>
+          </TitledPane>
+        </children>
+      </VBox>
       <TableView fx:id="table" VBox.vgrow="ALWAYS">
         <columns>
           <TableColumn fx:id="row" prefWidth="50.0" text="行番号" />
