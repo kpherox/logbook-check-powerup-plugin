@@ -1,5 +1,6 @@
 package logbook.plugin.checkpowerup.gui;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
@@ -35,7 +36,6 @@ import javafx.util.Duration;
 import logbook.bean.Ship;
 import logbook.bean.ShipCollection;
 import logbook.bean.ShipMst;
-import logbook.internal.gui.ShipItem;
 import logbook.internal.gui.SuggestSupport;
 import logbook.internal.gui.Tools.Tables;
 import logbook.internal.gui.Tools.Conrtols;
@@ -54,31 +54,31 @@ public class ModernizableShipController extends WindowController {
 
     /** 火力フィルター */
     @FXML
-    private CheckBox karyokuFilter;
+    private CheckBox karyokuValue;
 
     /** 雷装フィルター */
     @FXML
-    private CheckBox raisouFilter;
+    private CheckBox raisouValue;
 
     /** 対空フィルター */
     @FXML
-    private CheckBox taikuFilter;
+    private CheckBox taikuValue;
 
     /** 装甲フィルター */
     @FXML
-    private CheckBox soukouFilter;
+    private CheckBox soukouValue;
 
     /** 運フィルター */
     @FXML
-    private CheckBox luckyFilter;
+    private CheckBox luckyValue;
 
     /** 耐久フィルター */
     @FXML
-    private CheckBox taikyuFilter;
+    private CheckBox taikyuValue;
 
     /** 対潜フィルター */
     @FXML
-    private CheckBox taisenFilter;
+    private CheckBox taisenValue;
 
     /** ロックフィルター */
     @FXML
@@ -161,6 +161,10 @@ public class ModernizableShipController extends WindowController {
         Tables.setWidth(this.table, this.getClass().toString() + "#" + "table");
         Tables.setSortOrder(this.table, this.getClass().toString() + "#" + "table");
 
+        // フィルター 初期値
+        this.levelType.setItems(FXCollections.observableArrayList(Operator.values()));
+        this.levelType.getSelectionModel().select(Operator.GE);
+
         // フィルターのバインド
         this.lockedFilter.selectedProperty().addListener((ob, ov, nv) -> {
             this.lockedValue.setDisable(!nv);
@@ -169,25 +173,18 @@ public class ModernizableShipController extends WindowController {
             this.levelValue.setDisable(!nv);
             this.levelType.setDisable(!nv);
         });
-        this.levelValue.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
-        TextFields.bindAutoCompletion(this.levelValue,
-                                      new SuggestSupport("100", "99", "90", "80", "75", "70", "65", "60", "55", "50", "40", "30", "20"));
-        this.levelValue.setText("98");
-        this.levelType.setItems(FXCollections.observableArrayList(Operator.values()));
-        this.levelType.getSelectionModel().select(Operator.GE);
 
-        this.karyokuFilter.selectedProperty().addListener(this::filterAction);
-        this.raisouFilter.selectedProperty().addListener(this::filterAction);
-        this.taikuFilter.selectedProperty().addListener(this::filterAction);
-        this.soukouFilter.selectedProperty().addListener(this::filterAction);
-        this.luckyFilter.selectedProperty().addListener(this::filterAction);
-        this.taikyuFilter.selectedProperty().addListener(this::filterAction);
-        this.taisenFilter.selectedProperty().addListener(this::filterAction);
+        this.modernizedCheckBox().forEach(c -> c.selectedProperty().addListener(this::filterAction));
         this.levelFilter.selectedProperty().addListener(this::filterAction);
         this.levelValue.textProperty().addListener(this::filterAction);
         this.levelType.getSelectionModel().selectedItemProperty().addListener(this::filterAction);
         this.lockedFilter.selectedProperty().addListener(this::filterAction);
         this.lockedValue.selectedProperty().addListener(this::filterAction);
+
+        this.levelValue.setTextFormatter(new TextFormatter<>(new IntegerStringConverter()));
+        TextFields.bindAutoCompletion(this.levelValue,
+                                      new SuggestSupport("100", "99", "90", "80", "75", "70", "65", "60", "55", "50", "40", "30", "20"));
+        this.levelValue.setText("98");
 
         // カラムとオブジェクトのバインド
         this.row.setCellFactory(p -> new RowNumberCell());
@@ -309,13 +306,9 @@ public class ModernizableShipController extends WindowController {
      */
     private Predicate<ModernizableShipItem> createFilter() {
         Predicate<ModernizableShipItem> filter = ModernizableShipFilter.ModernizedFilter.builder()
-                .karyoku(this.karyokuFilter.isSelected())
-                .raisou(this.raisouFilter.isSelected())
-                .taiku(this.taikuFilter.isSelected())
-                .soukou(this.soukouFilter.isSelected())
-                .lucky(this.luckyFilter.isSelected())
-                .taikyu(this.taikyuFilter.isSelected())
-                .taisen(this.taisenFilter.isSelected())
+                .modernizeds(this.modernizedCheckBox().stream()
+                        .map(CheckBox::isSelected)
+                        .collect(Collectors.toList()))
                 .build();
 
         if (this.levelFilter.isSelected()) {
@@ -333,6 +326,20 @@ public class ModernizableShipController extends WindowController {
         }
 
         return filter;
+    }
+
+    /**
+     * 近代化改修項目
+     */
+    private List<CheckBox> modernizedCheckBox() {
+        return Arrays.asList(
+                this.karyokuValue,
+                this.raisouValue,
+                this.taikuValue,
+                this.soukouValue,
+                this.luckyValue,
+                this.taikyuValue,
+                this.taisenValue);
     }
 
     /**

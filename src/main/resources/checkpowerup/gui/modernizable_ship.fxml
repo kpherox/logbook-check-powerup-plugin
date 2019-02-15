@@ -26,13 +26,13 @@
                     <children>
                       <HBox spacing="5">
                         <children>
-                          <CheckBox fx:id="karyokuFilter" mnemonicParsing="false" selected="true" text="火力" />
-                          <CheckBox fx:id="raisouFilter" mnemonicParsing="false" selected="true" text="雷装" />
-                          <CheckBox fx:id="taikuFilter" mnemonicParsing="false" selected="true" text="対空" />
-                          <CheckBox fx:id="soukouFilter" mnemonicParsing="false" selected="true" text="装甲" />
-                          <CheckBox fx:id="luckyFilter" mnemonicParsing="false" selected="true" text="運" />
-                          <CheckBox fx:id="taikyuFilter" mnemonicParsing="false" selected="true" text="耐久" />
-                          <CheckBox fx:id="taisenFilter" mnemonicParsing="false" selected="true" text="対潜" />
+                          <CheckBox fx:id="karyokuValue" mnemonicParsing="false" selected="true" text="火力" />
+                          <CheckBox fx:id="raisouValue" mnemonicParsing="false" selected="true" text="雷装" />
+                          <CheckBox fx:id="taikuValue" mnemonicParsing="false" selected="true" text="対空" />
+                          <CheckBox fx:id="soukouValue" mnemonicParsing="false" selected="true" text="装甲" />
+                          <CheckBox fx:id="luckyValue" mnemonicParsing="false" selected="true" text="運" />
+                          <CheckBox fx:id="taikyuValue" mnemonicParsing="false" selected="true" text="耐久" />
+                          <CheckBox fx:id="taisenValue" mnemonicParsing="false" selected="true" text="対潜" />
                         </children>
                       </HBox>
                     </children>
